@@ -26,7 +26,7 @@
   <PropertyGroup Condition=" '$(Configuration)|$(Platform)' == 'Release|AnyCPU' ">
     <DebugType>pdbonly</DebugType>
     <Optimize>true</Optimize>
-    <OutputPath>bin\Release\</OutputPath>
+    <OutputPath>..\..\</OutputPath>
     <DefineConstants>TRACE</DefineConstants>
     <ErrorReport>prompt</ErrorReport>
     <WarningLevel>4</WarningLevel>
@@ -39,15 +39,19 @@
     </Reference>
     <Reference Include="SharpDX">
       <HintPath>..\..\..\..\..\..\..\..\lib\SharpDX.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Desktop">
       <HintPath>..\..\..\..\..\..\..\..\lib\SharpDX.Desktop.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Direct3D9">
       <HintPath>..\..\..\..\..\..\..\..\lib\SharpDX.Direct3D9.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="SharpDX.Mathematics">
       <HintPath>..\..\..\..\..\..\..\..\lib\SharpDX.Mathematics.dll</HintPath>
+      <Private>False</Private>
     </Reference>
     <Reference Include="System" />
     <Reference Include="System.Core" />
