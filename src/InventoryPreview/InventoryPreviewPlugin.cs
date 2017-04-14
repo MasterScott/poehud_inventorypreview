@@ -148,7 +148,7 @@ namespace InventoryPreview
 
             foreach (Element element in inventoryZone.Children)
             {
-                InventoryItemIcon inventElement = element.AsObject<InventoryItemIcon>();
+                NormalInventoryItem inventElement = element.AsObject<NormalInventoryItem>();
 
                 if (inventElement.InventPosX < 0 || inventElement.InventPosX >= CELLS_X_COUNT || inventElement.InventPosY < 0 || inventElement.InventPosY >= CELLS_Y_COUNT)
                 {
@@ -198,11 +198,11 @@ namespace InventoryPreview
                     return false;
                 }
                 Element uiHover = GameController.Game.IngameState.UIHover;
-                var inventoryItemIcon = uiHover.AsObject<InventoryItemIcon>();
+                var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
 
-                if (inventoryItemIcon.ToolTipType == ToolTipType.ItemOnGround)
+                if (HoverItemIcon.ToolTipType == ToolTipType.ItemOnGround)
                 {
-                    var item = inventoryItemIcon.Item;
+                    var item = HoverItemIcon.Item;
 
                     var rendertItem = item.GetComponent<RenderItem>();
 
