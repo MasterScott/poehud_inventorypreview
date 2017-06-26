@@ -1,6 +1,5 @@
 ﻿using PoeHUD.Controllers;
 using PoeHUD.Framework.Helpers;
-using PoeHUD.Framework.InputHooks;
 using PoeHUD.Poe;
 using PoeHUD.Poe.Elements;
 using PoeHUD.Poe.RemoteMemoryObjects;
@@ -9,8 +8,6 @@ using System;
 using System.Diagnostics;
 using System.Drawing;
 using System.Threading.Tasks;
-using System.Windows.Forms;
-using Graphics = PoeHUD.Hud.UI.Graphics;
 using RectangleF = SharpDX.RectangleF;
 using PoeHUD.Plugins;
 using PoeHUD.Models;
@@ -19,7 +16,8 @@ using PoeHUD.Poe.EntityComponents;
 using System.Net;
 using System.IO;
 using System.Collections.Generic;
-using Color = SharpDX.Color;
+using PoeHUD.Hud.Menu;
+using PoeHUD.Hud;
 
 namespace InventoryPreview
 {
@@ -30,15 +28,14 @@ namespace InventoryPreview
 
         private CellData[,] cells;
         private IngameUIElements ingameUiElements;
-        private Action<MouseInfo> onMouseDown;
 
         public override void Initialise()
         {
             PluginName = "Inventory Preview";
-            MouseHook.MouseDown += onMouseDown = info => info.Handled = OnMouseEvent(info);
+            MenuPlugin.eMouseEvent += OnMouseEvent;
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
         }
-        
+
         private bool CellDrawFlag = false;//Don't draw already drawn cells flag
 
         private bool Initialised = false;
@@ -61,11 +58,11 @@ namespace InventoryPreview
             float yPos = rect.Height * Settings.PositionY * .01f;
             var startDrawPoint = new Vector2(xPos, yPos);
 
-            if(!Initialised)
+            if (!Initialised)
             {
-                Graphics.DrawText("Open inventory for initial synchronisation...", 15, startDrawPoint - new Vector2(-10, 20), Color.Red, SharpDX.Direct3D9.FontDrawFlags.Left);
+                Graphics.DrawText("Open inventory for initial synchronisation...", 15, startDrawPoint - new Vector2(-10, 20), SharpDX.Color.Red);
             }
-            
+
             CellDrawFlag = !CellDrawFlag;
             for (int x = 0; x < CELLS_X_COUNT; x++)
             {
@@ -75,6 +72,7 @@ namespace InventoryPreview
                 }
             }
         }
+
         private void DrawItem(int x, int y, Vector2 startDrawPoint)
         {
             CellData cell = cells[x, y];
@@ -119,12 +117,12 @@ namespace InventoryPreview
                     textPos.Y += offset;
 
                     Graphics.DrawImage("menu-colors.png", backgroundRect, Settings.BackgroundColor);
-                    var color = cell.CurrentStackSize == cell.MaxStackSize ? new Color(0, 186, 154) : Color.White;
+                    var color = cell.CurrentStackSize == cell.MaxStackSize ? new SharpDX.Color(0, 186, 154) : SharpDX.Color.White;
 
                     Graphics.DrawText(cell.CurrentStackSize.ToString(), textSize, textPos, color, SharpDX.Direct3D9.FontDrawFlags.Center);
                 }
             }
-        
+
 
             //Don't draw cells that already drawn for this item
             for (int i = x; i < x + cell.ItemSizeX; i++)
@@ -189,13 +187,13 @@ namespace InventoryPreview
         }
 
         private long CurPickItemCount = 0;
-        private bool OnMouseEvent(MouseInfo mouseInfo)
+        private void OnMouseEvent(MouseEventID eventId, Vector2 pos)
         {
             try
             {
-                if (!Settings.Enable || !Settings.AutoUpdate || !GameController.Window.IsForeground() || mouseInfo.Buttons != MouseButtons.Left)
+                if (!Settings.Enable || !Settings.AutoUpdate || !GameController.Window.IsForeground() || eventId != MouseEventID.LeftButtonDown)
                 {
-                    return false;
+                    return;
                 }
                 Element uiHover = GameController.Game.IngameState.UIHover;
                 var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
@@ -261,9 +259,9 @@ namespace InventoryPreview
             catch (Exception e)
             {
                 LogError("OnMouseEvent error: " + e.Message, 4);
-                return false;
+                return;
             }
-            return true;
+            return;
         }
 
 
@@ -349,11 +347,6 @@ namespace InventoryPreview
             }
         }
 
-        public override void OnClose()
-        {
-            MouseHook.MouseDown -= onMouseDown;
-        }
-
 
         private Dictionary<string, ImageCache> ImagesCache = new Dictionary<string, ImageCache>();
 
@@ -378,7 +371,7 @@ namespace InventoryPreview
 
             metadata = metadata.Replace(".dds", ".png");
             var url = "http://webcdn.pathofexile.com/image/" + metadata;
-            
+
             var filePath = LocalPluginDirectory + "/resources/" + metadata;
 
 
@@ -437,7 +430,8 @@ namespace InventoryPreview
                     flaskImg.Save(FilePath, System.Drawing.Imaging.ImageFormat.Png);
 
                     bIsDownloaded = true;//Due to async processing this must be in the last line
-                } else
+                }
+                else
                 {
                     LogError("InventoryPreviewPlugin Warning: Invalid Url, ask Admin to fix plugin URL.", 10);
                 }
