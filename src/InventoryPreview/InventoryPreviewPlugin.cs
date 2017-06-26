@@ -42,14 +42,12 @@ namespace InventoryPreview
         public override void Render()
         {
             ingameUiElements = GameController.Game.IngameState.IngameUi;
-            if (ingameUiElements.OpenLeftPanel.IsVisible || ingameUiElements.OpenRightPanel.IsVisible)
+
+            if (!Initialised || ingameUiElements.InventoryPanel.IsVisible)
             {
-                if (ingameUiElements.InventoryPanel.IsVisible)
-                {
-                    Initialised = true;
-                    cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
-                    AddItems();
-                }
+                Initialised = true;
+                cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
+                AddItems();
                 return;
             }
 
@@ -58,10 +56,12 @@ namespace InventoryPreview
             float yPos = rect.Height * Settings.PositionY * .01f;
             var startDrawPoint = new Vector2(xPos, yPos);
 
+            /*
             if (!Initialised)
             {
                 Graphics.DrawText("Open inventory for initial synchronisation...", 15, startDrawPoint - new Vector2(-10, 20), SharpDX.Color.Red);
             }
+            */
 
             CellDrawFlag = !CellDrawFlag;
             for (int x = 0; x < CELLS_X_COUNT; x++)
