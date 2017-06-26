@@ -1,0 +1,8 @@
+Owner: zaafar
+Name: poehud_inventorypreview
+Repository
+
+Ignore:
+src
+README.md
+.gitignore
