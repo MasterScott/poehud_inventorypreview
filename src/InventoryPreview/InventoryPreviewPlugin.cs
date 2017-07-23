@@ -142,7 +142,7 @@ namespace InventoryPreview
 
         private void AddItems()
         {
-            var inventoryZone = ingameUiElements.ReadObject<Element>(ingameUiElements.InventoryPanel.Address + Element.OffsetBuffers + 0x42C);
+            var inventoryZone = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory].InventoryUiElement;
 
             foreach (Element element in inventoryZone.Children)
             {
