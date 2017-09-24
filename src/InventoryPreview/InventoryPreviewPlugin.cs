@@ -134,7 +134,6 @@ namespace InventoryPreview
             }
         }
 
-
         private float GetCellSize(int size)
         {
             return (Settings.CellSize * size) - Settings.CellPadding;
@@ -264,7 +263,6 @@ namespace InventoryPreview
             return;
         }
 
-
         private bool TryToAutoAddItem(string itemName, bool stackable, int currentStackSize, int maxStackSize, int itemSizeX, int itemSizeY, string iconMetadata)
         {
             if (stackable)
@@ -332,7 +330,6 @@ namespace InventoryPreview
             return false;
         }
 
-
         private void AddItemToCells(int x, int y, int itemSizeX, int itemSizeY, bool stackable, string itemName, int stackSize, int maxStackSize, string iconMetadata)
         {
             if (!iconMetadata.EndsWith(".dds"))
@@ -346,7 +343,6 @@ namespace InventoryPreview
                 }
             }
         }
-
 
         private Dictionary<string, ImageCache> ImagesCache = new Dictionary<string, ImageCache>();
 
@@ -436,7 +432,6 @@ namespace InventoryPreview
                     LogError("InventoryPreviewPlugin Warning: Invalid Url, ask Admin to fix plugin URL.", 10);
                 }
             }
-
 
             //from http://stackoverflow.com/questions/9484935/how-to-cut-a-part-of-image-in-c-sharp
             public Bitmap CropImage(Bitmap source, System.Drawing.Rectangle section)
