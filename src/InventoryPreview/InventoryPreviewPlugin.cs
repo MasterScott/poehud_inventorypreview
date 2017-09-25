@@ -141,21 +141,14 @@ namespace InventoryPreview
 
         private void AddItems()
         {
-            var inventoryZone = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory].InventoryUiElement;
+            var inventory = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory];
 
-            foreach (Element element in inventoryZone.Children)
+            for (int x = 0; x < CELLS_X_COUNT; x++)
             {
-                NormalInventoryItem inventElement = element.AsObject<NormalInventoryItem>();
-
-                if (inventElement.InventPosX < 0 || inventElement.InventPosX >= CELLS_X_COUNT || inventElement.InventPosY < 0 || inventElement.InventPosY >= CELLS_Y_COUNT)
+                for (int y = 0; y < CELLS_Y_COUNT; y++)
                 {
-                    continue;
-                }
-
-                var item = inventElement.Item;
-                if (item != null)
-                {
-                    AddItem(inventElement.InventPosX, inventElement.InventPosY, item);
+                    if (inventory[x, y, CELLS_X_COUNT] != null && !cells[x,y].IsUsed)
+                        AddItem(x, y, inventory[x, y, CELLS_X_COUNT]);
                 }
             }
         }
