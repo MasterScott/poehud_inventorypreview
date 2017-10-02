@@ -89,11 +89,13 @@ namespace InventoryPreview
             float cellWidth = GetCellSize(cell.ItemSizeX);
             float cellHeight = GetCellSize(cell.ItemSizeY);
             var rectangleF = new RectangleF(d.X, d.Y, cellWidth, cellHeight);
-
-            Graphics.DrawImage("cell.png", rectangleF, cell.IsUsed ? Settings.CellUsedColor : Settings.CellFreeColor);
-
+            
+            //Graphics.DrawImage("cell.png", rectangleF, cell.IsUsed ? Settings.FullBackgroundColor : Settings.EmptyBackgroundColor);
             if (cell.IsUsed)
             {
+                Graphics.DrawBox(rectangleF, Settings.FullBackgroundColor);
+                Graphics.DrawFrame(rectangleF, Settings.CellBorderThickness, Settings.FullBorderColor);
+
                 if (!string.IsNullOrEmpty(cell.IconMetadata))
                 {
                     var getImg = GetImage(cell.IconMetadata);
@@ -116,11 +118,16 @@ namespace InventoryPreview
                     backgroundRect.Y += offset;
                     textPos.Y += offset;
 
-                    Graphics.DrawImage("menu-colors.png", backgroundRect, Settings.BackgroundColor);
-                    var color = cell.CurrentStackSize == cell.MaxStackSize ? new SharpDX.Color(0, 186, 154) : SharpDX.Color.White;
+                    Graphics.DrawImage("menu-colors.png", backgroundRect, Settings.TextBackgroundColor);
 
+                    var color = cell.CurrentStackSize == cell.MaxStackSize ? new SharpDX.Color(0, 186, 154) : SharpDX.Color.White;
                     Graphics.DrawText(cell.CurrentStackSize.ToString(), textSize, textPos, color, SharpDX.Direct3D9.FontDrawFlags.Center);
                 }
+            }
+            else
+            {
+                Graphics.DrawBox(rectangleF, Settings.EmptyBackgroundColor);
+                Graphics.DrawFrame(rectangleF, Settings.CellBorderThickness, Settings.EmptyBorderColor);
             }
 
 
