@@ -18,6 +18,7 @@ using System.IO;
 using System.Collections.Generic;
 using PoeHUD.Hud.Menu;
 using PoeHUD.Hud;
+using System.Windows.Forms;
 
 namespace InventoryPreview
 {
@@ -32,8 +33,13 @@ namespace InventoryPreview
         public override void Initialise()
         {
             PluginName = "Inventory Preview";
-            MenuPlugin.eMouseEvent += OnMouseEvent;
+            MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
+        }
+        public override void OnClose()
+        {
+            base.OnClose();
+            MenuPlugin.KeyboardMouseEvents.MouseDown -= OnMouseEvent;
         }
 
         private bool CellDrawFlag = false;//Don't draw already drawn cells flag
@@ -186,11 +192,11 @@ namespace InventoryPreview
         }
 
         private long CurPickItemCount = 0;
-        private void OnMouseEvent(MouseEventID eventId, Vector2 pos)
+        private void OnMouseEvent(object sender, System.Windows.Forms.MouseEventArgs e)
         {
             try
             {
-                if (!Settings.Enable || !Settings.AutoUpdate || !GameController.Window.IsForeground() || eventId != MouseEventID.LeftButtonDown)
+                if (!Settings.Enable || !Settings.AutoUpdate || !GameController.Window.IsForeground() || e.Button != MouseButtons.Left)
                 {
                     return;
                 }
@@ -255,9 +261,9 @@ namespace InventoryPreview
 
                 }
             }
-            catch (Exception e)
+            catch (Exception ee)
             {
-                LogError("OnMouseEvent error: " + e.Message, 4);
+                LogError("OnMouseEvent error: " + ee.Message, 4);
                 return;
             }
             return;
