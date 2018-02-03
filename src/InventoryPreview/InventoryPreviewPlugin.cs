@@ -33,20 +33,21 @@ namespace InventoryPreview
         public override void Initialise()
         {
             PluginName = "Inventory Preview";
+
             MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;
+            
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
         }
-        public override void OnClose()
-        {
-            base.OnClose();
-            MenuPlugin.KeyboardMouseEvents.MouseDown -= OnMouseEvent;
-        }
+
 
         private bool CellDrawFlag = false;//Don't draw already drawn cells flag
 
         private bool Initialised = false;
         public override void Render()
         {
+            Element uiHover = GameController.Game.IngameState.UIHover;
+            var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
+
             ingameUiElements = GameController.Game.IngameState.IngameUi;
 
             if (!Initialised || ingameUiElements.InventoryPanel.IsVisible)
@@ -95,13 +96,11 @@ namespace InventoryPreview
             float cellWidth = GetCellSize(cell.ItemSizeX);
             float cellHeight = GetCellSize(cell.ItemSizeY);
             var rectangleF = new RectangleF(d.X, d.Y, cellWidth, cellHeight);
-            
-            //Graphics.DrawImage("cell.png", rectangleF, cell.IsUsed ? Settings.FullBackgroundColor : Settings.EmptyBackgroundColor);
+
+            Graphics.DrawImage("cell.png", rectangleF, cell.IsUsed ? Settings.CellUsedColor : Settings.CellFreeColor);
+
             if (cell.IsUsed)
             {
-                Graphics.DrawBox(rectangleF, Settings.FullBackgroundColor);
-                Graphics.DrawFrame(rectangleF, Settings.CellBorderThickness, Settings.FullBorderColor);
-
                 if (!string.IsNullOrEmpty(cell.IconMetadata))
                 {
                     var getImg = GetImage(cell.IconMetadata);
@@ -124,16 +123,11 @@ namespace InventoryPreview
                     backgroundRect.Y += offset;
                     textPos.Y += offset;
 
-                    Graphics.DrawImage("menu-colors.png", backgroundRect, Settings.TextBackgroundColor);
-
+                    Graphics.DrawImage("menu-colors.png", backgroundRect, Settings.BackgroundColor);
                     var color = cell.CurrentStackSize == cell.MaxStackSize ? new SharpDX.Color(0, 186, 154) : SharpDX.Color.White;
+
                     Graphics.DrawText(cell.CurrentStackSize.ToString(), textSize, textPos, color, SharpDX.Direct3D9.FontDrawFlags.Center);
                 }
-            }
-            else
-            {
-                Graphics.DrawBox(rectangleF, Settings.EmptyBackgroundColor);
-                Graphics.DrawFrame(rectangleF, Settings.CellBorderThickness, Settings.EmptyBorderColor);
             }
 
 
@@ -147,6 +141,7 @@ namespace InventoryPreview
             }
         }
 
+
         private float GetCellSize(int size)
         {
             return (Settings.CellSize * size) - Settings.CellPadding;
@@ -154,14 +149,21 @@ namespace InventoryPreview
 
         private void AddItems()
         {
-            var inventory = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory];
+            var inventoryZone = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory].InventoryUiElement;
 
-            for (int x = 0; x < CELLS_X_COUNT; x++)
+            foreach (Element element in inventoryZone.Children)
             {
-                for (int y = 0; y < CELLS_Y_COUNT; y++)
+                NormalInventoryItem inventElement = element.AsObject<NormalInventoryItem>();
+
+                if (inventElement.InventPosX < 0 || inventElement.InventPosX >= CELLS_X_COUNT || inventElement.InventPosY < 0 || inventElement.InventPosY >= CELLS_Y_COUNT)
                 {
-                    if (inventory[x, y, CELLS_X_COUNT] != null && !cells[x,y].IsUsed)
-                        AddItem(x, y, inventory[x, y, CELLS_X_COUNT]);
+                    continue;
+                }
+
+                var item = inventElement.Item;
+                if (item != null)
+                {
+                    AddItem(inventElement.InventPosX, inventElement.InventPosY, item);
                 }
             }
         }
@@ -192,7 +194,7 @@ namespace InventoryPreview
         }
 
         private long CurPickItemCount = 0;
-        private void OnMouseEvent(object sender, System.Windows.Forms.MouseEventArgs e)
+        private void OnMouseEvent(object sender, MouseEventArgs e)
         {
             try
             {
@@ -200,6 +202,7 @@ namespace InventoryPreview
                 {
                     return;
                 }
+               
                 Element uiHover = GameController.Game.IngameState.UIHover;
                 var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
 
@@ -261,13 +264,14 @@ namespace InventoryPreview
 
                 }
             }
-            catch (Exception ee)
+            catch (Exception ex)
             {
-                LogError("OnMouseEvent error: " + ee.Message, 4);
+                LogError("OnMouseEvent error: " + ex.Message, 4);
                 return;
             }
             return;
         }
+
 
         private bool TryToAutoAddItem(string itemName, bool stackable, int currentStackSize, int maxStackSize, int itemSizeX, int itemSizeY, string iconMetadata)
         {
@@ -336,6 +340,7 @@ namespace InventoryPreview
             return false;
         }
 
+
         private void AddItemToCells(int x, int y, int itemSizeX, int itemSizeY, bool stackable, string itemName, int stackSize, int maxStackSize, string iconMetadata)
         {
             if (!iconMetadata.EndsWith(".dds"))
@@ -349,6 +354,7 @@ namespace InventoryPreview
                 }
             }
         }
+
 
         private Dictionary<string, ImageCache> ImagesCache = new Dictionary<string, ImageCache>();
 
@@ -438,6 +444,7 @@ namespace InventoryPreview
                     LogError("InventoryPreviewPlugin Warning: Invalid Url, ask Admin to fix plugin URL.", 10);
                 }
             }
+
 
             //from http://stackoverflow.com/questions/9484935/how-to-cut-a-part-of-image-in-c-sharp
             public Bitmap CropImage(Bitmap source, System.Drawing.Rectangle section)
