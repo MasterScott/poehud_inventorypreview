@@ -151,7 +151,7 @@ namespace InventoryPreview
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
             foreach (var item in GameController.Game.IngameState.ServerData.GetPlayerInventoryByType(InventoryTypeE.Main).InventorySlotItems)
             {
-                AddItem(item.PosX - 1, item.PosY - 1, item.Item);
+                AddItem(item.PosX, item.PosY, item.Item);
             }
         }
 
@@ -168,12 +168,13 @@ namespace InventoryPreview
             int stackSize = 0;
             int maxStackSize = 0;
 
+            BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
+            itemName = bit.BaseName;
+
             var stack = item.GetComponent<Stack>();
             if (stack != null && stack.Info != null)
             {
                 stackable = true;
-                BaseItemType bit = GameController.Files.BaseItemTypes.Translate(item.Path);
-                itemName = bit.BaseName;
                 stackSize = stack.Size;
                 maxStackSize = stack.Info.MaxStackSize;
             }
@@ -318,7 +319,7 @@ namespace InventoryPreview
 
                         if (free)
                         {
-                            AddItemToCells(x, y, itemSizeX, itemSizeY, stackable, itemName, currentStackSize, maxStackSize, iconMetadata);
+                            //AddItemToCells(x, y, itemSizeX, itemSizeY, stackable, itemName, currentStackSize, maxStackSize, iconMetadata);
                             return true;
                         }
                     }
@@ -338,7 +339,18 @@ namespace InventoryPreview
             {
                 for (int j = y; j < y + itemSizeY; j++)
                 {
-                    cells[i, j].SetItem(itemName, stackable, stackSize, maxStackSize, itemSizeX, itemSizeY, iconMetadata);
+                    if (i < 0 || i >= CELLS_X_COUNT)
+                    {
+                        LogMessage($"Item {itemName} out of range X: {x}, Y: {y}, i: {i}, j: {j}, itemSizeX: {itemSizeX}, itemSizeY: {itemSizeY}", 5);
+                    }
+                    else if (j < 0 || j >= CELLS_Y_COUNT)
+                    {
+                        LogMessage($"Item {itemName} out of range Y: {x}, Y: {y}, i: {i}, j: {j}, itemSizeX: {itemSizeX}, itemSizeY: {itemSizeY}", 5);
+                    }
+                    else
+                    {
+                        cells[i, j].SetItem(itemName, stackable, stackSize, maxStackSize, itemSizeX, itemSizeY, iconMetadata);
+                    }
                 }
             }
         }
