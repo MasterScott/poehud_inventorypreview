@@ -28,61 +28,46 @@ namespace InventoryPreview
         private const int CELLS_Y_COUNT = 5;
 
         private CellData[,] cells;
-        //private IngameUIElements ingameUiElements;
 
         public override void Initialise()
         {
             PluginName = "Inventory Preview";
-
             MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;    
-            cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
-            GameController.Area.OnAreaChange += Area_OnAreaChange;
+            AddItems();
         }
+
+
 
         public override void OnPluginDestroyForHotReload()
         {
-            GameController.Area.OnAreaChange -= Area_OnAreaChange;
             MenuPlugin.KeyboardMouseEvents.MouseDown -= OnMouseEvent;
-        }
-
-        private void Area_OnAreaChange(AreaController obj)
-        {
-            AddItems();
         }
 
         private bool CellDrawFlag = false;//Don't draw already drawn cells flag
 
-        private bool Initialised = false;
+        private bool InventOpened = false;
         public override void Render()
         {
             if (!GameController.InGame) return;
             var ui = GameController.Game.IngameState.IngameUi;
             if (ui.TreePanel.IsVisible) return;
 
-            Element uiHover = GameController.Game.IngameState.UIHover;
-            var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
-
             var ingameUiElements = GameController.Game.IngameState.IngameUi;
-
-            if (!Initialised || ingameUiElements.InventoryPanel.IsVisible)
+            if (InventOpened != ingameUiElements.InventoryPanel.IsVisible)
             {
-                Initialised = true;
-                cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
-                AddItems();
-                return;
+                if (InventOpened)
+                    AddItems();
+
+                InventOpened = ingameUiElements.InventoryPanel.IsVisible;
             }
+
+            if (InventOpened)
+                return;
 
             RectangleF rect = GameController.Window.GetWindowRectangle();
             float xPos = rect.Width * Settings.PositionX * .01f;
             float yPos = rect.Height * Settings.PositionY * .01f;
             var startDrawPoint = new Vector2(xPos, yPos);
-
-            /*
-            if (!Initialised)
-            {
-                Graphics.DrawText("Open inventory for initial synchronisation...", 15, startDrawPoint - new Vector2(-10, 20), SharpDX.Color.Red);
-            }
-            */
 
             CellDrawFlag = !CellDrawFlag;
             for (int x = 0; x < CELLS_X_COUNT; x++)
@@ -163,7 +148,8 @@ namespace InventoryPreview
 
         private void AddItems()
         {
-            foreach(var item in GameController.Game.IngameState.ServerData.GetPlayerInventoryByType(InventoryTypeE.Main).InventorySlotItems)
+            cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
+            foreach (var item in GameController.Game.IngameState.ServerData.GetPlayerInventoryByType(InventoryTypeE.Main).InventorySlotItems)
             {
                 AddItem(item.PosX - 1, item.PosY - 1, item.Item);
             }
@@ -259,7 +245,8 @@ namespace InventoryPreview
 
                         if (!item.IsValid)
                         {
-                            TryToAutoAddItem(itemName, stackable, stackSize, maxStackSize, ItemCellsSizeX, ItemCellsSizeY, resourcePath);
+                            AddItems();
+                            //TryToAutoAddItem(itemName, stackable, stackSize, maxStackSize, ItemCellsSizeX, ItemCellsSizeY, resourcePath);
                         }
                     });
 
