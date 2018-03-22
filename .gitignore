@@ -287,3 +287,4 @@ __pycache__/
 *.xsd.cs
 config.ini
 ErrorLog.txt
+/resources

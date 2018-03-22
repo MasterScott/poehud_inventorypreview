@@ -28,27 +28,41 @@ namespace InventoryPreview
         private const int CELLS_Y_COUNT = 5;
 
         private CellData[,] cells;
-        private IngameUIElements ingameUiElements;
+        //private IngameUIElements ingameUiElements;
 
         public override void Initialise()
         {
             PluginName = "Inventory Preview";
 
-            MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;
-            
+            MenuPlugin.KeyboardMouseEvents.MouseDown += OnMouseEvent;    
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
+            GameController.Area.OnAreaChange += Area_OnAreaChange;
         }
 
+        public override void OnPluginDestroyForHotReload()
+        {
+            GameController.Area.OnAreaChange -= Area_OnAreaChange;
+            MenuPlugin.KeyboardMouseEvents.MouseDown -= OnMouseEvent;
+        }
+
+        private void Area_OnAreaChange(AreaController obj)
+        {
+            AddItems();
+        }
 
         private bool CellDrawFlag = false;//Don't draw already drawn cells flag
 
         private bool Initialised = false;
         public override void Render()
         {
+            if (!GameController.InGame) return;
+            var ui = GameController.Game.IngameState.IngameUi;
+            if (ui.TreePanel.IsVisible) return;
+
             Element uiHover = GameController.Game.IngameState.UIHover;
             var HoverItemIcon = uiHover.AsObject<HoverItemIcon>();
 
-            ingameUiElements = GameController.Game.IngameState.IngameUi;
+            var ingameUiElements = GameController.Game.IngameState.IngameUi;
 
             if (!Initialised || ingameUiElements.InventoryPanel.IsVisible)
             {
@@ -149,22 +163,9 @@ namespace InventoryPreview
 
         private void AddItems()
         {
-            var inventoryZone = ingameUiElements.InventoryPanel[PoeHUD.Models.Enums.InventoryIndex.PlayerInventory].InventoryUiElement;
-
-            foreach (Element element in inventoryZone.Children)
+            foreach(var item in GameController.Game.IngameState.ServerData.GetPlayerInventoryByType(InventoryTypeE.Main).InventorySlotItems)
             {
-                NormalInventoryItem inventElement = element.AsObject<NormalInventoryItem>();
-
-                if (inventElement.InventPosX < 0 || inventElement.InventPosX >= CELLS_X_COUNT || inventElement.InventPosY < 0 || inventElement.InventPosY >= CELLS_Y_COUNT)
-                {
-                    continue;
-                }
-
-                var item = inventElement.Item;
-                if (item != null)
-                {
-                    AddItem(inventElement.InventPosX, inventElement.InventPosY, item);
-                }
+                AddItem(item.PosX - 1, item.PosY - 1, item.Item);
             }
         }
 
