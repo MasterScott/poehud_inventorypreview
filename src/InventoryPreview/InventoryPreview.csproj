@@ -9,7 +9,7 @@
     <AppDesignerFolder>Properties</AppDesignerFolder>
     <RootNamespace>InventoryPreview</RootNamespace>
     <AssemblyName>InventoryPreview</AssemblyName>
-    <TargetFrameworkVersion>v4.6.2</TargetFrameworkVersion>
+    <TargetFrameworkVersion>v4.6.1</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
     <TargetFrameworkProfile />
   </PropertyGroup>
@@ -37,7 +37,7 @@
   </PropertyGroup>
   <ItemGroup>
     <Reference Include="Gma.System.MouseKeyHook">
-      <HintPath>..\..\..\..\Gma.System.MouseKeyHook.dll</HintPath>
+      <HintPath>..\..\..\..\..\..\..\..\Release\Gma.System.MouseKeyHook.dll</HintPath>
       <Private>False</Private>
     </Reference>
     <Reference Include="PoeHUD">

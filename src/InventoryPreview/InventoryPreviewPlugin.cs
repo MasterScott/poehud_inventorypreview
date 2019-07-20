@@ -149,9 +149,11 @@ namespace InventoryPreview
         private void AddItems()
         {
             cells = new CellData[CELLS_X_COUNT, CELLS_Y_COUNT];
-            foreach (var item in GameController.Game.IngameState.ServerData.GetPlayerInventoryByType(InventoryTypeE.Main).InventorySlotItems)
+            Vector2 inventoryPosition = Vector2.Zero;
+            foreach (var item in ServerData.GetPlayerInventoryByType(InventoryTypeE.MainInventory).InventorySlotItems)
             {
-                AddItem(item.PosX, item.PosY, item.Item);
+                inventoryPosition = item.InventoryPosition;
+                AddItem((int)inventoryPosition.X, (int)inventoryPosition.Y, item.Item);
             }
         }
 
